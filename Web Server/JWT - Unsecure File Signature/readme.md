@@ -20,9 +20,11 @@ Còn khi thay đổi `user`:
 
 Vậy là ta hiểu cơ chế là nó dùng 1 file khóa trong `keys` để kiểm tra với `secret key` trong jwt, nếu trùng signature này thì sẽ đúng 
 
-Với `kid` thì có 2 lỗ hổng có thể khai thác là LFI và SQL, ở đây là LFI rồi, ta sẽ cố gắng điều hướng nó đến `dev/null` và file này có giá trị là null nên ta cần mã hóa jwt theo `secret key` là `null` hay ở dạng base64 là `AA==`:
-
 Mặt khác vì nó filter `../` nên cần dùng `....//` để traversal thành công: 
+
+![alt text](image-6.png)
+
+Với `kid` thì có 2 lỗ hổng có thể khai thác là LFI và SQL, ở đây là LFI rồi, ta sẽ cố gắng điều hướng nó đến `dev/null` và file này có giá trị là null nên ta cần mã hóa jwt theo `secret key` là `null` hay ở dạng base64 là `AA==`:
 
 ![alt text](image-4.png)
 
