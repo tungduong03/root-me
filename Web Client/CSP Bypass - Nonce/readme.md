@@ -46,7 +46,7 @@ Payload cuối cùng:
 
 Và sau đó gửi url đó cho admin đợi response
 
-
+![alt text](image-9.png)
 
 
 
