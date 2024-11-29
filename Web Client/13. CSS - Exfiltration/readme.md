@@ -1,6 +1,6 @@
 Challenge: http://challenge01.root-me.org:58005/
 
-Truy cập trang web ta thấy web có 2 chức năng chính là thay đổi màu sắc page và 1 chwucs năng để report cho admin:
+Truy cập trang web ta thấy web có 2 chức năng chính là thay đổi màu sắc page và 1 chức năng để report cho admin:
 ![alt text](image.png)
 
 Với chức năng thay đổi màu sắc, nó sẽ được thay dổi qua url với parameter `style`: 
@@ -25,7 +25,8 @@ Và ta nhận được gói tin:
 Bây giờ ta sẽ xây dựng 1 file css sao cho nó sẽ lấy được `csrf token` của admin, vì csrf ở client có `name=csrf` nên ta cũng sẽ lấy `input` `name=csrf` ở phía admin: 
 ![alt text](image-7.png)
 
-Ta tạo file css với input name=csrf và giá trị bắt đầu bằng các kí tự nào đó thì sẽ request đến webhook path `token=` kí tự đó:
+Ta tạo file css với input name=csrf và giá trị bắt đầu bằng các kí tự nào đó thì sẽ request đến webhook path `token=` kí tự đó: ^= để lấy các kí tự bắt đầu, $= lấy các kí tự cuối 
+
 ![alt text](image-8.png)
 
 Đẩy file lên server:
