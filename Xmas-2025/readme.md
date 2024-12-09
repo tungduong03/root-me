@@ -53,3 +53,11 @@ Còn đây là với server thực:
 Ta có flag: 
 
 ![alt text](image-1.png)
+
+
+Game : 
+![alt text](image-15.png)
+
+Crypto: 
+
+![alt text](image-16.png)
