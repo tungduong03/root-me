@@ -40,6 +40,8 @@ Nhận gói tin:
 
 Khớp với chữ cái đầu của csrf token bên client.
 
+![alt text](image-12.png)
+
 
 
 
