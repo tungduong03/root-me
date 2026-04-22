@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Testing Bot</title>
+</head>
+<body>
+    <script>
+        // Gửi tín hiệu ngay lập tức khi trang vừa load
+        fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?status=started');
+
+        // Thử thêm một cách khác bằng Image nếu Fetch bị chặn bởi CSP
+        var img = new Image();
+        img.src = 'https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?type=image';
+    </script>
+</body>
+</html>
